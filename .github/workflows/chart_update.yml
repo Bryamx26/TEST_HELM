@@ -9,6 +9,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'app/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -30,5 +32,20 @@ jobs:
       
         run: | 
           echo incrementation de la version du chart !
-
+          # Récupérer la version actuelle du chart
+          versionActuelle=$(grep '^appVersion:' mychart/Chart.yaml | awk '{print $2}')
+          echo "Version actuelle : $versionActuelle"
+          clean=$(tr -d '"' <<<"$versionActuelle")
+          # Incrémenter la version (en supposant un format de version simple comme "1.0.0")
+          IFS='.' read -r -a versionParts <<< "$clean"
+          major=${versionParts[0]}
+          minor=${versionParts[1]}  
+          patch=${versionParts[2]}
+          patch=$((patch + 1))
+          nouvelleVersion="$major.$minor.$patch"
+          sed -i "s/appVersion: .*/appVersion: \"$nouvelleVersion\"/" mychart/Chart.yaml
+          echo "Nouvelle version : $nouvelleVersion"
+          # Afficher le contenu du fichier Chart.yaml pour vérifier les modifications
+          cat mychart/Chart.yaml
+          
       

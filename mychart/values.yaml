@@ -7,7 +7,7 @@ replicaCount: 1
 
 # Ceci définit l'image du conteneur. Plus d'informations ici : https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: "bryamx26/flask:latest"
+  repository: bryam
   
   
   name: nginx_custom

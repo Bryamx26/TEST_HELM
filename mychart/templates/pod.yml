@@ -3,7 +3,7 @@ kind: Pod
 
 metadata:
 
-  name: {{ .Release.Name }}-pod
+  name: "{{ .Release.Name }}-pod"
 spec: 
   containers:
     - name: app-{{ .Release.Name }}
