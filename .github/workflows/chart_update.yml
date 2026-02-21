@@ -36,6 +36,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build & push image
+        
         run: |
           docker build -t bryamx26/flaskv2:${{ env.nouvelleVersion }} ./app
           docker push bryamx26/flaskv2:${{ env.nouvelleVersion }}
