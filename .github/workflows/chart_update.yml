@@ -1,75 +1,49 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - 'app/**'
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - 'app/**'
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    # Steps represent a sequence of tasks that will be executed as part of the job
+
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Incrementation de la version du chart
-      
-        run: | 
-          echo incrementation de la version du chart !
-          # Récupérer la version actuelle du chart
-          versionActuelle=$(grep '^appVersion:' mychart/Chart.yaml | awk '{print $2}')
-          echo "Version actuelle : $versionActuelle"
+      - name: Increment Helm chart version
+        run: |
+          versionActuelle=$(grep '^version:' mychart/Chart.yaml | awk '{print $2}')
           clean=$(tr -d '"' <<<"$versionActuelle")
-          # Incrémenter la version (en supposant un format de version simple comme "1.0.0")
-          IFS='.' read -r -a versionParts <<< "$clean"
-          major=${versionParts[0]}
-          minor=${versionParts[1]}  
-          patch=${versionParts[2]}
+          IFS='.' read -r major minor patch <<< "$clean"
           patch=$((patch + 1))
           nouvelleVersion="$major.$minor.$patch"
-          sed -i "s/appVersion: .*/appVersion: \"$nouvelleVersion\"/" mychart/Chart.yaml
-          echo "Nouvelle version : $nouvelleVersion"
-          # Afficher le contenu du fichier Chart.yaml pour vérifier les modifications
-          cat mychart/Chart.yaml
 
-      - name: log into DockerHub
-        uses: docker/login-action@v2
+          echo "nouvelleVersion=$nouvelleVersion" >> $GITHUB_ENV
+
+          sed -i "s/^version:.*/version: $nouvelleVersion/" mychart/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"$nouvelleVersion\"/" mychart/Chart.yaml
+
+      - name: Login DockerHub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER_NAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build & push image
         run: |
-          echo "Building and pushing Docker image..."
-          docker build -t bryamx26/flaskv2:$nouvelleVersion .
-          docker push bryamx26/flaskv2:$nouvelleVersion
-          
-      - name: push changes
+          docker build -t bryamx26/flaskv2:${{ env.nouvelleVersion }} ./app
+          docker push bryamx26/flaskv2:${{ env.nouvelleVersion }}
+
+      - name: Push Helm version bump
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-
           git add mychart/Chart.yaml
-          git commit -m "Mise à jour de la version du chart"
-          git push origin main
-
-          
+          git commit -m "Update chart version [skip ci]"
+          git push origin HEAD:main
