@@ -7,6 +7,8 @@ on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
+    paths:
+      - 'app/**'
   pull_request:
     branches: [ "main" ]
     paths:
@@ -23,8 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -50,6 +50,18 @@ jobs:
           echo "Nouvelle version : $nouvelleVersion"
           # Afficher le contenu du fichier Chart.yaml pour vérifier les modifications
           cat mychart/Chart.yaml
+
+      - name: log into DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER_NAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          echo "Building and pushing Docker image..."
+          docker build -t bryamx26/flaskv2:$nouvelleVersion .
+          docker push bryamx26/flaskv2:$nouvelleVersion
           
       - name: push changes
         run: |
