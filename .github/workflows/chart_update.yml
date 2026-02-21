@@ -48,4 +48,13 @@ jobs:
           # Afficher le contenu du fichier Chart.yaml pour vérifier les modifications
           cat mychart/Chart.yaml
           
-      
+      - name: push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git add mychart/Chart.yaml
+          git commit -m "Mise à jour de la version du chart"
+          git push origin main
+
+          
