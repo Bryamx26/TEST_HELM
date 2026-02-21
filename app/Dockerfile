@@ -4,7 +4,7 @@ FROM python:3.10-bookworm
 WORKDIR /app
 
 # Copie le fichier depuis le dossier local 'app/' vers le dossier actuel '.' du conteneur (/app)
-COPY app/app.py . 
+COPY . .
 
 # Installe Flask
 RUN pip install --no-cache-dir Flask
