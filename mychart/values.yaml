@@ -1,0 +1,164 @@
+# Valeurs par défaut pour mychart.
+# Ceci est un fichier au format YAML.
+# Déclarez les variables à passer à vos templates.
+
+# Ceci définit le nombre de ReplicaSet. Plus d'informations ici : https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# Ceci définit l'image du conteneur. Plus d'informations ici : https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: "bryamx26/flask:latest"
+  
+  
+  name: nginx_custom
+  # Ceci définit la politique de récupération (pull) des images.
+  pullPolicy: IfNotPresent
+  # Remplace le tag de l'image dont la valeur par défaut est l'appVersion du chart.
+  tag: ""
+
+# Ceci concerne les secrets pour récupérer une image depuis un dépôt privé. Plus d'informations ici : https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# Ceci sert à remplacer le nom du chart.
+nameOverride: ""
+fullnameOverride: ""
+
+# Cette section construit le compte de service (Service Account). Plus d'informations ici : https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Spécifie si un compte de service doit être créé.
+  create: true
+  # Monter automatiquement les identifiants API du ServiceAccount ?
+  automount: true
+  # Annotations à ajouter au compte de service.
+  annotations: {}
+  # Le nom du compte de service à utiliser.
+  # Si non défini et que create est true, un nom est généré en utilisant le template fullname.
+  name: ""
+
+# Ceci sert à définir les Annotations Kubernetes pour un Pod.
+# Pour plus d'informations, consultez : https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# Ceci sert à définir les Labels Kubernetes pour un Pod.
+# Pour plus d'informations, consultez : https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# Ceci sert à configurer un service. Plus d'informations ici : https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # Ceci définit le type de service. Plus d'informations ici : https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # Ceci définit les ports. Plus d'informations ici : https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
+
+# Ce bloc sert à configurer l'ingress. Pour plus d'informations : https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
+
+# -- Exposer le service via gateway-api HTTPRoute
+# Nécessite les ressources Gateway API et un contrôleur approprié installé dans le cluster
+# (voir : https://gateway-api.sigs.k8s.io/guides/)
+httpRoute:
+  # HTTPRoute activé.
+  enabled: false
+  # Annotations HTTPRoute.
+  annotations: {}
+  # À quelles Gateways cette Route est rattachée.
+  parentRefs:
+  - name: gateway
+    sectionName: http
+    # namespace: default
+  # Noms d'hôtes correspondant à l'en-tête HTTP.
+  hostnames:
+  - chart-example.local
+  # Liste des règles et filtres appliqués.
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /headers
+  #   filters:
+  #   - type: RequestHeaderModifier
+  #     requestHeaderModifier:
+  #       set:
+  #       - name: My-Overwrite-Header
+  #         value: this-is-the-only-value
+  #       remove:
+  #       - User-Agent
+  # - matches:
+  #   - path:
+  #       type: PathPrefix
+  #       value: /echo
+  #     headers:
+  #     - name: version
+  #       value: v2
+
+resources: {}
+  # Nous recommandons généralement de ne pas spécifier de ressources par défaut et de laisser cela comme un choix
+  # conscient pour l'utilisateur. Cela augmente aussi les chances que les charts fonctionnent sur des environnements avec peu
+  # de ressources, comme Minikube. Si vous voulez spécifier des ressources, décommentez les lignes
+  # suivantes, ajustez-les si nécessaire, et retirez les accolades après 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Cette section sert à configurer les sondes de vivacité (liveness) et de disponibilité (readiness). Plus d'informations ici : https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# Cette section sert à configurer l'autoscaling (mise à l'échelle automatique). Plus d'informations ici : https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Volumes supplémentaires sur la définition du Deployment en sortie.
+volumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+
+# VolumeMounts supplémentaires sur la définition du Deployment en sortie.
+volumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
