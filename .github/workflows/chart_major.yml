@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["dev"]
     paths:
       - 'app/**'
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
           versionActuelle=$(grep '^version:' mychart/Chart.yaml | awk '{print $2}')
           clean=$(tr -d '"' <<<"$versionActuelle")
           IFS='.' read -r major minor patch <<< "$clean"
-          patch=$((patch + 1))
+          minor=$((minor + 1))
           nouvelleVersion="$major.$minor.$patch"
 
           echo "nouvelleVersion=$nouvelleVersion" >> $GITHUB_ENV
@@ -47,5 +47,5 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git add mychart/Chart.yaml
           git commit -m "Update chart version [skip ci]"
-          git push origin HEAD:main
+          git push origin HEAD:dev
 

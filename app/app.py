@@ -19,6 +19,10 @@ def hello_world():
             justify-content: center;
             align-items: center;
             height: 100vh;
+
+                                  
+
+                                  
             margin: 0;
             background: #f0f2f5;
             text-align: center;
@@ -51,7 +55,7 @@ def hello_world():
         <a href="/argocd" class="btn">Voir le guide ArgoCD</a>
                                   
 
-                                  
+
     </div>
 </body>
 </html>
