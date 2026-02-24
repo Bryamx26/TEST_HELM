@@ -49,11 +49,25 @@ def hello_world():
         <p>Hello, World! updated 3</p>
         <br>
         <a href="/argocd" class="btn">Voir le guide ArgoCD</a>
+                                  
+
+                                  
     </div>
 </body>
 </html>
 
                                   
+
+
+
+
+
+
+                                  
+
+
+
+
 
 
 
